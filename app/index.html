@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Taller - Mecánica Automotriz Granados</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <div>
+        <p class="eyebrow">Mecánica Automotriz Granados</p>
+        <h1>Sistema integral de gestión del taller</h1>
+        <p class="subtitle">
+          Administración de citas, vehículos, diagnósticos, reparaciones, gastos, conectividad y mantenimiento técnico.
+        </p>
+      </div>
+      <div class="hero__actions">
+        <button id="exportJsonBtn" class="btn btn--primary">Exportar JSON</button>
+        <button id="importDemoBtn" class="btn">Restablecer demo</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <button class="nav-btn active" data-target="dashboard">Dashboard</button>
+      <button class="nav-btn" data-target="citas">Citas</button>
+      <button class="nav-btn" data-target="reparaciones">Diagnóstico y reparación</button>
+      <button class="nav-btn" data-target="gastos">Gastos</button>
+      <button class="nav-btn" data-target="red">Red e internet</button>
+      <button class="nav-btn" data-target="equipos">Escáneres y equipos</button>
+      <button class="nav-btn" data-target="reportes">Reportes</button>
+      <button class="nav-btn" data-target="ayuda">Ayuda</button>
+    </aside>
+
+    <section class="content">
+      <section id="dashboard" class="panel active">
+        <div class="cards" id="summaryCards"></div>
+        <div class="grid-two">
+          <div class="card chart-card">
+            <h2>Citas por mes</h2>
+            <canvas id="appointmentsChart"></canvas>
+          </div>
+          <div class="card chart-card">
+            <h2>Estatus de reparaciones</h2>
+            <canvas id="repairsChart"></canvas>
+          </div>
+        </div>
+        <div class="grid-two">
+          <div class="card chart-card">
+            <h2>Gastos por categoría</h2>
+            <canvas id="expensesChart"></canvas>
+          </div>
+          <div class="card">
+            <h2>Indicadores operativos</h2>
+            <table class="table compact" id="kpiTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="citas" class="panel">
+        <div class="section-heading">
+          <h2>Gestión de citas</h2>
+          <input id="searchAppointments" class="input search" placeholder="Buscar por cliente, vehículo o placa" />
+        </div>
+        <div class="card">
+          <form id="appointmentForm" class="form-grid">
+            <input type="hidden" id="appointmentId" />
+            <div><label>Fecha</label><input required type="date" id="appointmentDate" class="input" /></div>
+            <div><label>Hora</label><input required type="time" id="appointmentTime" class="input" /></div>
+            <div><label>Cliente</label><input required type="text" id="appointmentClient" class="input" /></div>
+            <div><label>Teléfono</label><input type="text" id="appointmentPhone" class="input" /></div>
+            <div><label>Vehículo</label><input required type="text" id="appointmentVehicle" class="input" /></div>
+            <div><label>Modelo</label><input required type="text" id="appointmentModel" class="input" /></div>
+            <div><label>Placa</label><input type="text" id="appointmentPlate" class="input" /></div>
+            <div><label>Estado</label>
+              <select id="appointmentStatus" class="input">
+                <option>Programada</option>
+                <option>Confirmada</option>
+                <option>En proceso</option>
+                <option>Atendida</option>
+                <option>Cancelada</option>
+              </select>
+            </div>
+            <div class="full"><label>Servicio solicitado / observaciones</label><textarea id="appointmentNotes" class="input" rows="3"></textarea></div>
+            <div class="form-actions full">
+              <button class="btn btn--primary" type="submit">Guardar cita</button>
+              <button class="btn" type="button" id="appointmentReset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <table class="table" id="appointmentsTable"></table>
+        </div>
+      </section>
+
+      <section id="reparaciones" class="panel">
+        <div class="section-heading">
+          <h2>Diagnóstico y reparación</h2>
+          <input id="searchRepairs" class="input search" placeholder="Buscar por cliente, técnico, vehículo o estatus" />
+        </div>
+        <div class="card">
+          <form id="repairForm" class="form-grid">
+            <input type="hidden" id="repairId" />
+            <div><label>Fecha ingreso</label><input required type="date" id="repairEntryDate" class="input" /></div>
+            <div><label>Fecha entrega</label><input type="date" id="repairDeliveryDate" class="input" /></div>
+            <div><label>Cliente</label><input required type="text" id="repairClient" class="input" /></div>
+            <div><label>Técnico</label><input required type="text" id="repairTechnician" class="input" /></div>
+            <div><label>Vehículo</label><input required type="text" id="repairVehicle" class="input" /></div>
+            <div><label>Modelo</label><input required type="text" id="repairModel" class="input" /></div>
+            <div><label>Estatus</label>
+              <select id="repairStatus" class="input">
+                <option>Pendiente</option>
+                <option>En diagnóstico</option>
+                <option>En reparación</option>
+                <option>Lista para entrega</option>
+                <option>Finalizada</option>
+              </select>
+            </div>
+            <div><label>Mano de obra</label><input type="number" min="0" step="0.01" id="repairLabor" class="input" /></div>
+            <div><label>Refacciones</label><input type="number" min="0" step="0.01" id="repairParts" class="input" /></div>
+            <div class="full"><label>Diagnóstico</label><textarea required id="repairDiagnosis" class="input" rows="3"></textarea></div>
+            <div class="full"><label>Reparación realizada</label><textarea id="repairAction" class="input" rows="3"></textarea></div>
+            <div class="full"><label>Notas adicionales</label><textarea id="repairNotes" class="input" rows="2"></textarea></div>
+            <div class="form-actions full">
+              <button class="btn btn--primary" type="submit">Guardar servicio</button>
+              <button class="btn" type="button" id="repairReset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <table class="table" id="repairsTable"></table>
+        </div>
+      </section>
+
+      <section id="gastos" class="panel">
+        <div class="section-heading">
+          <h2>Control de gastos</h2>
+          <input id="searchExpenses" class="input search" placeholder="Buscar por categoría, concepto o proveedor" />
+        </div>
+        <div class="card">
+          <form id="expenseForm" class="form-grid">
+            <input type="hidden" id="expenseId" />
+            <div><label>Fecha</label><input required type="date" id="expenseDate" class="input" /></div>
+            <div><label>Categoría</label>
+              <select id="expenseCategory" class="input">
+                <option>Nómina</option>
+                <option>Refacciones</option>
+                <option>Servicios</option>
+                <option>Infraestructura TI</option>
+                <option>Mantenimiento</option>
+                <option>Otros</option>
+              </select>
+            </div>
+            <div><label>Proveedor</label><input type="text" id="expenseProvider" class="input" /></div>
+            <div><label>Monto</label><input required type="number" min="0" step="0.01" id="expenseAmount" class="input" /></div>
+            <div><label>Método de pago</label><input type="text" id="expenseMethod" class="input" /></div>
+            <div class="full"><label>Concepto / detalle</label><textarea required id="expenseConcept" class="input" rows="3"></textarea></div>
+            <div class="form-actions full">
+              <button class="btn btn--primary" type="submit">Guardar gasto</button>
+              <button class="btn" type="button" id="expenseReset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <table class="table" id="expensesTable"></table>
+        </div>
+      </section>
+
+      <section id="red" class="panel">
+        <div class="section-heading">
+          <h2>Infraestructura de red e internet</h2>
+          <input id="searchNetwork" class="input search" placeholder="Buscar por ubicación, modo, IP o observación" />
+        </div>
+        <div class="card">
+          <form id="networkForm" class="form-grid">
+            <input type="hidden" id="networkId" />
+            <div><label>Fecha</label><input required type="date" id="networkDate" class="input" /></div>
+            <div><label>Ubicación</label><input required type="text" id="networkLocation" class="input" /></div>
+            <div><label>Dispositivo</label><input required type="text" id="networkDevice" class="input" /></div>
+            <div><label>Modo</label>
+              <select id="networkMode" class="input">
+                <option>Router principal</option>
+                <option>Repetidor</option>
+                <option>Nodo mesh</option>
+                <option>Switch</option>
+                <option>Punto de acceso</option>
+              </select>
+            </div>
+            <div><label>IP / identificador</label><input type="text" id="networkIp" class="input" /></div>
+            <div><label>Estado</label>
+              <select id="networkStatus" class="input">
+                <option>Operativo</option>
+                <option>Monitoreo</option>
+                <option>Mantenimiento</option>
+              </select>
+            </div>
+            <div class="full"><label>Acciones realizadas</label><textarea required id="networkActions" class="input" rows="3"></textarea></div>
+            <div class="full"><label>Observaciones</label><textarea id="networkNotes" class="input" rows="2"></textarea></div>
+            <div class="form-actions full">
+              <button class="btn btn--primary" type="submit">Guardar registro</button>
+              <button class="btn" type="button" id="networkReset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <table class="table" id="networkTable"></table>
+        </div>
+      </section>
+
+      <section id="equipos" class="panel">
+        <div class="section-heading">
+          <h2>Escáneres y equipos del taller</h2>
+          <input id="searchAssets" class="input search" placeholder="Buscar por equipo, tipo, estado o serie" />
+        </div>
+        <div class="card">
+          <form id="assetForm" class="form-grid">
+            <input type="hidden" id="assetId" />
+            <div><label>Tipo</label>
+              <select id="assetType" class="input">
+                <option>Escáner automotriz</option>
+                <option>PC</option>
+                <option>Laptop</option>
+                <option>Impresora</option>
+                <option>Máquina de taller</option>
+              </select>
+            </div>
+            <div><label>Nombre / equipo</label><input required type="text" id="assetName" class="input" /></div>
+            <div><label>Marca</label><input type="text" id="assetBrand" class="input" /></div>
+            <div><label>Modelo</label><input type="text" id="assetModel" class="input" /></div>
+            <div><label>No. serie</label><input type="text" id="assetSerial" class="input" /></div>
+            <div><label>Estado</label>
+              <select id="assetStatus" class="input">
+                <option>Operativo</option>
+                <option>En revisión</option>
+                <option>Requiere refacciones</option>
+                <option>Fuera de servicio</option>
+              </select>
+            </div>
+            <div><label>Último mantenimiento</label><input type="date" id="assetLastService" class="input" /></div>
+            <div><label>Próximo mantenimiento</label><input type="date" id="assetNextService" class="input" /></div>
+            <div class="full"><label>Actividad realizada</label><textarea required id="assetActions" class="input" rows="3"></textarea></div>
+            <div class="full"><label>Observaciones</label><textarea id="assetNotes" class="input" rows="2"></textarea></div>
+            <div class="form-actions full">
+              <button class="btn btn--primary" type="submit">Guardar equipo</button>
+              <button class="btn" type="button" id="assetReset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <table class="table" id="assetsTable"></table>
+        </div>
+      </section>
+
+      <section id="reportes" class="panel">
+        <div class="section-heading">
+          <h2>Reportes rápidos</h2>
+        </div>
+        <div class="grid-two">
+          <div class="card">
+            <h3>Resumen financiero</h3>
+            <div id="financialSummary" class="report-box"></div>
+            <button class="btn btn--primary" id="downloadExpensesCsv">Descargar gastos CSV</button>
+          </div>
+          <div class="card">
+            <h3>Seguimiento de operación</h3>
+            <div id="operationsSummary" class="report-box"></div>
+            <button class="btn" id="downloadAppointmentsCsv">Descargar citas CSV</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Bitácora consolidada</h3>
+          <div id="logSummary" class="report-box"></div>
+        </div>
+      </section>
+
+      <section id="ayuda" class="panel">
+        <div class="card prose">
+          <h2>Guía de uso</h2>
+          <ol>
+            <li>Captura una cita con fecha, cliente y vehículo.</li>
+            <li>Registra el diagnóstico y la reparación cuando el vehículo ingrese al taller.</li>
+            <li>Agrega los gastos relacionados con operación, refacciones, nómina o infraestructura TI.</li>
+            <li>Documenta mejoras de red, nodos mesh, cambios de IP o mantenimientos de conectividad.</li>
+            <li>Da seguimiento a escáneres, PCs y máquinas del taller para mantener el historial técnico.</li>
+          </ol>
+          <p>
+            Este proyecto funciona de inmediato con <strong>localStorage</strong>, por lo que puede ejecutarse localmente o desplegarse en Netlify sin backend adicional.
+            Si después deseas persistencia multiusuario, puedes migrar la capa de almacenamiento a Firebase o a una función serverless compatible con Netlify.
+          </p>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
